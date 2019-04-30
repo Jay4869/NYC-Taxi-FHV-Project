@@ -1,0 +1,8 @@
+"","      V1","Pickup_DateTime","DropOff_datetime"," PUlocationID"," DOlocationID","    type"
+"","Min.   :      1  ","Length:1048575    ","Length:1048575    ","Min.   :  3  ","Min.   :  1.0  ","Length:1048575    "
+"","1st Qu.: 262145  ","Class :character  ","Class :character  ","1st Qu.: 75  ","1st Qu.: 75.0  ","Class :character  "
+"","Median : 524288  ","Mode  :character  ","Mode  :character  ","Median :141  ","Median :142.0  ","Mode  :character  "
+"","Mean   : 524288  ",NA,NA,"Mean   :139  ","Mean   :141.9  ",NA
+"","3rd Qu.: 786432  ",NA,NA,"3rd Qu.:211  ","3rd Qu.:221.0  ",NA
+"","Max.   :1048575  ",NA,NA,"Max.   :265  ","Max.   :265.0  ",NA
+"",NA,NA,NA,NA,"NA's   :630  ",NA
