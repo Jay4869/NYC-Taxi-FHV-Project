@@ -32,7 +32,9 @@ Note: all tables for EDA have been stored in `./Data/tables` folder.
 
 ##### 4. Visualization
 
-`./Analysis/visualization.R`
+`./Analysis/Visualization.R`
+
+Note: all codes of visualizations have been stored `Visualization.R` except interactive map. The interactive map can be found at https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed.
 
 ##### 5. Final Report
 
