@@ -1,4 +1,4 @@
-# NYC-Taxi-FHV-Project
+# NYC Taxi & FHV Project
 
 This repo provides scripts to download, process, analyze and comprehensive Exploratory Data Analysis for 300 millions of for-hire vehicle (Uber, Lyft, Via) trips originating in New York City from **2018-01-01** to **2018-12-31**. we focuse on trip counts and duration in New York competition with tidy R, ggplot2, and plotly. Most of the [raw data](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page) comes from the NYC Taxi & Limousine Commission. The [NYC Taxi Zones map](https://data.cityofnewyork.us/Transportation/NYC-Taxi-Zones/d3c5-ddgc) is provided by TLC and published to NYC Open Data . The [NYC Weather data](https://www.ncdc.noaa.gov/data-access) is provided by National Centers For Environmental Information.
 
