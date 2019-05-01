@@ -306,7 +306,7 @@ We find:
 
 ### 5.2 Durations of FHV Types
 
-We investigate on how the median trip duration depends on the different for hire vehicle types such as Uber, Lyft and Via in hourly, weekly and monthly bases.
+We investigate on how the median trip duration depends on the different for hire vehicle types such as Uber, Lyft and Via in hourly, weekly and monthly bases. Note: click `Plan` you will find some interesting trends!
 
 ```{r, echo=F}
 accumulate_by = function(dat, var)
@@ -376,7 +376,7 @@ We find:
 
 We also study the market shares on the both space and time line. We create an interactive [NYC FHV Marketshare map](https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed) to indictate percentage of marketshare for Uber, Lyft and Via at different pick up zone. By simply clicking the map, you can see marketshare data in each zone. The legend lies in the right hand side, where you can also alter different views for each types of taxi by clicking three Teardrop-shaped buttons of applying auto style.
 
-![NYC FHV Marketshare map](https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed)](./Analysis/interactive market share.jpg)
+![NYC FHV Marketshare map](./Analysis/interactive market share.jpg)
 
 ```{r, fig.width= 8, fig.height= 4}
 x = read.csv("./Data/tables/counts by h_wk_type.csv") %>%
@@ -524,7 +524,7 @@ We conclude:
 * The trip exists a lot of outliers (duration <= 2 mins and >= 4 hours), so we need to investigate on the specific direction and time consumption to identify the possiblity.
 * The duration is heavy skew, so we require **log** transformation to normal distribution for future modeling.
 * In general, trip durations fluctuate all day and long trips happen at rush hour which makes sense. Interesting point is that longer trips happen in Thursday, it may be worth further investigation though. We also found trips with longer duration occurs in May and Oct when a larger number of vistors come to the city.
-* Overall, Via ususally have longer duration because they offer a large number of shared ridd and Uber seems has lowest trip durations. But in weekly base, Lyft generally takes more time for trips except weekend.
+* Overall, Via ususally have longer duration because they offer a large number of shared ride and Uber seems has lowest trip durations. But in weekly base, Lyft generally takes more time for trips except weekend.
 * It is obvious that Uber still dominate the FHV market. Via offer services in limitted areas compared to others. But it is interesting that Lyft shares less market during rush hour and weekdays. We guess that lots of Lyft drivers may be part-time and they may be out of service during weekdays or rush hour.
 * Although distribution of trip durations is quite similar for these four weathers. The interesting point is that median of trip durations in sunny days are slightly larger than others.
 
