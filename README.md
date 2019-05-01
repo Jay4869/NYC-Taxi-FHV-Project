@@ -39,3 +39,13 @@ Note: all codes of visualizations have been stored `Visualization.R` except inte
 ##### 5. Final Report
 
 `./Final Project.nb.html`
+
+##### Conclusion
+
+* FHV data has about 90k missing value. Since we have very large dataset, removing missing value will be better idea.
+* The trip exists a lot of outliers (duration <= 2 mins and >= 4 hours), so we need to investigate on the specific direction and time consumption to identify the possiblity.
+* The duration is heavy skew, so we require **log** transformation to normal distribution for future modeling.
+* In general, trip durations fluctuate all day and long trips happen at rush hour which makes sense. Interesting point is that longer trips happen in Thursday, it may be worth further investigation though. We also found trips with longer duration occurs in May and Oct when a larger number of vistors come to the city.
+* Overall, Via ususally have longer duration because they offer a large number of shared ride and Uber seems has lowest trip durations. But in weekly base, Lyft generally takes more time for trips except weekend.
+* It is obvious that Uber still dominate the FHV market. Via offer services in limitted areas compared to others. But it is interesting that Lyft shares less market during rush hour and weekdays. We guess that lots of Lyft drivers may be part-time and they may be out of service during weekdays or rush hour.
+* Although distribution of trip durations is quite similar for these four weathers. The interesting point is that median of trip durations in sunny days are slightly larger than others.
