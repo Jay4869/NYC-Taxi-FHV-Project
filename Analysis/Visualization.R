@@ -296,11 +296,11 @@ plot_ly(type = 'bar') %>%
            marker = list(color = 'rgba(254,231,37,0.4)'),
            line = list(color = 'rgba(253,231,37,100)'),
            text = ~paste("weather:","Rainy Days","<br>Trip counts:",82545120)) %>%
-  add_bars(x = ~5111354,   y= "Snowy and Rainy Days",
-           name = "Snowy and Rainy Days", fillcolor ='rgba(93,200,99,0.4)',
+  add_bars(x = ~5111354,   y= "Sleeting Days",
+           name = "Sleeting Days", fillcolor ='rgba(93,200,99,0.4)',
            marker = list(color = 'rgba(93,200,99,0.4)'),
            line = list(color = 'rgba(93,200,99,100)'),
-           text = ~ paste("weather:","Snowy and Rainy Days","<br>Trip counts:",5111354))%>%
+           text = ~ paste("weather:","Sleeting Days","<br>Trip counts:",5111354))%>%
   add_bars(x = ~ 111272091, y = "Sunny Days", name = "Sunny Days", fillcolor = 'rgba(33,144,140,0.4)',
            marker = list(color = 'rgba(33,144,140,0.4)'),
            line = list(color = 'rgba(33,144,140,100)'), 
