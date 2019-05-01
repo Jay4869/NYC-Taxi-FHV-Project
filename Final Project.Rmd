@@ -10,22 +10,22 @@ output:
 ---
 
 ## I. Introduction
-This is a comprehensive Exploratory Data Analysis for 300 millions of for-hire vehicle (Uber, Lyft, Via) trips originating in New York City from **2018-01-01** to **2018-12-31**, and we focuse on trip counts and duration in New York competition with tidy R, ggplot2, and plotly.
+This is a comprehensive Exploratory Data Analysis for 300 millions of for-hire vehicle (Uber, Lyft, Via) trips originating in New York City from **2018-01-01** to **2018-12-31**. We are focusing on the trip counts and duration in the different time windows to find out the data insights and user behavior. All the data analysis process has been uploaded to [GitHub](https://github.com/Jay4869/NYC-Taxi-FHV-Project).
 
 The goal of this challenge is to process large data sets and to understand the duration of FHV in NYC based on features: trip location, pick-up, drop-off time, and weather effect. Also, we are interested in the difference betweeen three companies such as market shares, targeted customers, and business strategy. First of all, we analysis and visualize the original data, engineer new features, aggregate time-series variables to understand the data and pattern. Second, we compare three companies (Uber, Lyft, Via) over various time frame on trip amount and duration to analyze the market share and business strategy. Lastly, we add external NYC weather data to study how the weather impact on the trip duration and order requests in order to understand users behavior.
 
 ## II. Description of the data source
-The data were collected and provided to the NYC Taxi and Limousine Commission (TLC) by technology providers authorized under the Taxicab & Livery Passenger Enhancement Programs (https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page).
+The [raw data](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page) were collected and provided to the NYC Taxi and Limousine Commission (TLC) by technology providers authorized under the Taxicab & Livery.
 
 The For-Hire Vehicle ("FHV") trip records since 2009 until present including fields capturing the dispatching base license number and the pick-up date, time, and taxi zone location ID. We are focusing on the time period from **2018-01-01** to **2018-12-31**, so the data comes in the shape of 200+ million observations, and each row contains one trip infomation.
 
 The base license number is matching with different vehicle companies, so that we will join the `base-number` file to define the vehicle types, and we only focus on Uber, Lyft, Via at this point.
 
-The NYC Taxi Zones map provided by TLC and published to NYC Open Data(https://data.cityofnewyork.us/Transportation/NYC-Taxi-Zones/d3c5-ddgc). This map shows the NYC taxi zones corresponding to the pick up zomes and drop off zones, or location IDs, included in the FHV trip records. The taxi zones are roughly based on NYC Department of City Planning's Neighborhood Tabulation Areas (NTAs) and are meant to approximate neighborhoods.
+The [NYC Taxi Zones map](https://data.cityofnewyork.us/Transportation/NYC-Taxi-Zones/d3c5-ddgc) provided by TLC and published to NYC Open Data. This map shows the NYC taxi zones corresponding to the pick up zomes and drop off zones, or location IDs, included in the FHV trip records. The taxi zones are roughly based on NYC Department of City Planning's Neighborhood Tabulation Areas (NTAs) and are meant to approximate neighborhoods.
 
-The NYC Weather data is provided by National Centers For Environmental Information (https://www.ncdc.noaa.gov/data-access). NCEI is the world's largest provider of weather and climate data. Land-based, marine, model, radar, weather balloon, satellite, and paleoclimatic are just a few of the types of datasets available. The weather data we are using is collected from NY Central Park Station (USW00094728) from **2018-01-01** to **2018-12-31**, which contains daily weather records such as wind, precipitation, snow and snow depth.
+The [NYC Weather data](https://www.ncdc.noaa.gov/data-access) is provided by National Centers For Environmental. NCEI is the world's largest provider of weather and climate data. Land-based, marine, model, radar, weather balloon, satellite, and paleoclimatic are just a few of the types of datasets available. The weather data we are using is collected from NY Central Park Station (USW00094728) from **2018-01-01** to **2018-12-31**, which contains daily weather records such as wind, precipitation, snow and snow depth.
 
-Statistics through December 31, 2018:
+Statistics through January 1 to December 31, 2018:
 
 * 17.2 GB of raw data
 * 200+ million for-hire vehicle total trips
@@ -40,6 +40,8 @@ Existing problem:
 
 ## III. Description of data import / cleaning / transformation
 ### 3.1 Libraries and Dependencies
+
+We list libraries for our data process, manipulation and visualization.
 ```{r, warning=F, message=F}
 library(tibble) # data wrangling
 library(reshape2) # data wrangling
@@ -47,8 +49,8 @@ library(tidyr) # data wrangling
 library(dplyr) # data manipulation
 library(purrr) # data manipulation
 library(data.table) # data manipulation
-library(ggplot2) # visualisation
-library(plotly) # visualisation
+library(ggplot2) # visualization
+library(plotly) # visualization
 library(lubridate) # date and time
 ```
 
@@ -57,7 +59,8 @@ setwd("E:/NYC Taxi Project/")
 ```
 
 ### 3.2 Data collection
-First of all, we write a `shell` script to download original data from public websites
+
+We write a `shell` script to download raw data from public NYC TLC websites
 ```{r, eval=F}
 curl https://s3.amazonaws.com/nyc-tlc/trip+data/fhv_tripdata_2018-01.csv >201801.csv
 curl https://s3.amazonaws.com/nyc-tlc/trip+data/fhv_tripdata_2018-02.csv >201802.csv
@@ -74,7 +77,8 @@ curl https://s3.amazonaws.com/nyc-tlc/trip+data/fhv_tripdata_2018-12.csv >201812
 ```
 
 ### 3.3 Data Import & Cleaning
-Then, We use `data.table:fread` function to speed up loading data for each month, and select the vehicle company (Uber, Lyft, Via) based on the license number. At the time, we also export subset monthly data into `csv` file as back up. we combine all monthly data into `tibble` format to perform our strucuted data. Each row contains trip information such as pick-up, drop-off date, time, location ID.
+
+We use `data.table:fread` function to speed up loading data for each month, and select the vehicle company (Uber, Lyft, Via) based on the license number. At the time, we also export subset monthly data into `csv` file as back up. we combine all monthly data into `tibble` format to perform our strucuted data. Each row contains trip information such as pick-up, drop-off date, time, location ID.
 
 Due to local memeory issue in R, we process half-year data at one time, and use **aggregation** technique to compute results and perform entire year analysis. We will explain more detail below.
 
@@ -118,6 +122,7 @@ for(i in 1:12)
 ```
 
 ### 3.4 File structure and content
+
 Let's have an overview of the first 5000 `Jan` and `Dec` data. We find the time format is different, so we would like to work on variable convertion and transformation such as standard time stamp.
 
 ```{r, echo=F}
@@ -154,7 +159,8 @@ plot_ly(x = ~ density1$x, y = ~ density1$y, type = 'scatter', mode = 'lines', na
          yaxis = list(title = 'Density'))
 ```
 
-We might take **log** transformation on the duration to solve the skewness issue for furture modeling.
+We require to take **log** transformation on the duration to solve the skewness issue to normal distribution for furture modeling and statistical inference.
+
 ```{r, fig.width=8, fig.height=4}
 density1 = density(log(df$value))
 plot_ly(x = ~ density1$x, y = ~ density1$y, type = 'scatter', mode = 'lines', name = 'Fair cut', fill = 'tozeroy') %>%
@@ -165,8 +171,8 @@ plot_ly(x = ~ density1$x, y = ~ density1$y, type = 'scatter', mode = 'lines', na
 
 
 ### 3.6 Data Missing & Outliers
-Due to most companies allow to cancel the order in 2 minutes, and drives might miss the passengers in order to cancel the order. We find there are 279,693 records showing the trip duration is less than 2 minutes, and study on those pick-up and drop-off location by using **heat map**. Following heat map shows the number of trips which duration is less than 2 minutes. The pick-up and drop-off locations help to identify the possiblity.
 
+Due to most companies allow to cancel the order in 2 minutes, and drives might miss the passengers in order to cancel the order. We use **heat map** to visualize the trips counts based on the pick-up and drop-off location in order to identify the possiblity.
 
 ```{r, echo=F}
 df = read.csv("./Data/tables/less_than_2.csv")
@@ -209,7 +215,7 @@ vals = unique(scales::rescale(df2$counts))
 o = order(vals, decreasing = FALSE)
 cols = scales::col_numeric("Reds", domain = NULL)(vals)
 colz = setNames(data.frame(vals[o], cols[o]), NULL)
-plot_ly(data=df2, x=~pick_borough,y=~drop_borough,z=~counts, colorscale = colz, type = "heatmap",text = ~paste("Pick up: ",pick_borough, '<br>Drop off:', drop_borough,'<br>Trip counts:', n)) %>%
+plot_ly(data=df2, x=~pick_borough,y=~drop_borough,z=~counts, colorscale = colz, type = "heatmap") %>%
 layout(title = "Duration is larger than 4 hours", xaxis = list(title = "Pick-up Borough"), yaxis = list(title = "Drop-off Borough"))
 ```
 
@@ -224,8 +230,8 @@ read.csv("./Data/tables/missing.csv") %>% as.tibble() %>% mutate(pick = mdy_hm(p
 
 We find:
 
-* A lot of trip orders in the same borough are less than 2 minutes duration, which might be correct
-* However, it is impossible the trip is crossing two borough taking less than 2 minutes, so we are considered as cancalled orders.
+* There are 279,693 trip records are less than 2 minutes duration, which might be incorrect or cancelled request.
+* Also, there are 7900+ trips have duration longer than 4 hours, which does not make sense for close borough.
 * There are missing values when pick-up location is EWR in our dataset. More specific, there are 91,932 records missing pick-up location. To conclude accurate analysis, we are going to remove all `NA` records.
 
 
@@ -256,8 +262,10 @@ read.csv("./Data/tables/month type duration.csv") %>% select(-X) %>% as.tibble()
 
 ## V. Results
 
-### 5.1 Overall
-We take look overall median trip duration based on hour, weekday and month bases. The median is more robust measurement because it has less effect on outliers. Hourly base is showing the peak hour effects in a typical day. The weekly base tells the difference between work day and weekends. The monthly base has a good explaination on seasonality.
+### 5.1 Overall Median Duration
+
+We look at overall median trip duration based on hour, weekday and month bases. The median is more robust measurement because it has less effect on outliers. Hourly base is showing the peak hour effects in a typical day. The weekly base tells the difference between work day and weekends. The monthly base has a good explaination on seasonality.
+
 ```{r, message=F, warning=F, results="hide", fig.width= 8, fig.height= 4}
 p1 = read.csv("./Data/tables/hourly duration.csv") %>%
 plot_ly(., x = ~ hour, y = ~ d.med, type ="scatter", mode = 'lines+markers',line = list(color="#2E86C1", width = 4), marker = list(size = 8, color = 'rgba(255, 182, 193, .9)', line = list(color = 'rgba(152, 0, 0, .8)', width = 2,simplyfy = F)), text = ~ paste("Hour: ", hour, '<br>Average duration:', round(d.med,2)), main="average duration vs hour") %>%
@@ -292,12 +300,14 @@ subplot(p1, p2, p3, nrows = 3)
 ```
 We find:
 
-* After mid-night, the shortest trip duration is falling down and reaching 16 minutes; the peak trip duration occurs during 6 AM - 6 PM about 20+ minutes in a typical day, and the longest trip duration is 24 minutest at 4 PM (intersting!)
+* After mid-night, the shortest trip duration is falling down and reaching 16 minutes; the peak trip duration occurs during 6 AM - 6 PM about 20+ minutes in a typical day, and the longest trip duration is 24 minutest at 4 PM (interesting!)
 * For the weekday, the longest trip duration occurs on Thursday, and weekends have the lowest trip duration. We guess maybe more people prefer to stay at home on the weekends.
 * The higher trip duration occurs in May and Oct, and the lower happens in Jan. The spring and fall are the best weather for traveling and visitors in NYC, so it might cause traffic.
 
-### 5.2 types
-We investigate on how the median trip duration dependes on the different companies in hourly, weekly and monthly bases.
+### 5.2 Durations of FHV Types
+
+We investigate on how the median trip duration depends on the different for hire vehicle types such as Uber, Lyft and Via in hourly, weekly and monthly bases.
+
 ```{r, echo=F}
 accumulate_by = function(dat, var)
 {
@@ -357,16 +367,16 @@ read.csv("./Data/tables/month type duration.csv") %>%
 
 We find:
 
-* For tipical day, Uber, Lyft and Via have simmilar trip duration in each hour 
-* For weekly base, Lyft has a litter higher trip duration than others, especially on Monday (interesting!)
-* For monthly base, Via is the highest because most trips are share riders, which takes longer time
-* Overally, Uber has lowest trip duration comparing other two!
+* For typical day, Uber, Lyft and Via have simmilar trip duration in each hour.
+* For weekly base, Lyft has a litter higher trip duration than others, especially on Monday (interesting!).
+* For monthly base, Via's median duration is the highest because most trips are share riders, which takes longer time.
+* Overall, Uber has lowest trip duration comparing other two!
 
 ### 5.3 Market Share
 
-We also study the market shares on the both space and time line. We create an interactive map **NYC FHV Marketshare map** to indictate percentage of marketshare for Uber, Lyft and Via at different pick up zone. By simply clicking the map, you can see marketshare data in each zone. The legend lies in the right hand side, where you can also alter different views for each types of taxi by clicking three Teardrop-shaped buttons of applying auto style. (https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed)
+We also study the market shares on the both space and time line. We create an interactive [NYC FHV Marketshare map](https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed) to indictate percentage of marketshare for Uber, Lyft and Via at different pick up zone. By simply clicking the map, you can see marketshare data in each zone. The legend lies in the right hand side, where you can also alter different views for each types of taxi by clicking three Teardrop-shaped buttons of applying auto style.
 
-![NYC FHV Marketshare map (https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed)](./Analysis/interactive market share.jpg)
+![NYC FHV Marketshare map](https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed)](./Analysis/interactive market share.jpg)
 
 ```{r, fig.width= 8, fig.height= 4}
 x = read.csv("./Data/tables/counts by h_wk_type.csv") %>%
@@ -395,6 +405,9 @@ inner_join(y, x, by = "hour") %>%
          yaxis = list(title = 'Marketshare', zeroline = FALSE, showgrid = F,ticksuffix = '%'),
          xaxis = list(title = 'Hour', zeroline = FALSE, showgrid = F)) 
 ```
+
+
+We then research on hourly, weekly marketshare of Uber, Lyft and Via. We plot the following filled line plot and bar plot to observe whether there are some patterns or not.
 
 ```{r, results="hide", fig.width= 8, fig.height= 4}
 x = read.csv("./Data/tables/counts by h_wk_type.csv") %>%
@@ -428,13 +441,23 @@ inner_join(y, x, by = "wday") %>%
 
 We find:
 
-* Uber has dominant on the FHV market, reaching 75% entire market
-* Lyft is second dominant on the FHV market, and weekends have higher numbers of trips.
-* Via is a growing company, so it takes a small proportion of market, but it focuses on the peaking hour.
+* Space Aspect
+    + Service provided by Uber covers almost the whole area and it dominates the market.
+    + Lyft makes up no more than 40% market among these four types in each pick-up zone. Service operates well
+    mainly in midtown and downtown and some area of Brooklyn.
+    + Via serve a smaller area in NYC and most zone only have no more than 10% Via trips. The interesting point
+    is that Via makes up 100% marketshare in Newark Airport, but we think it is not realistic and  maybe data
+    of Uber and Lyft did not cover Newark Airport.
+    
+* Time Aspect
+    + Uber is dominant on the FHV market, reaching 75% in entire area.
+    + Lyft is second dominant on the FHV market, and weekends have higher numbers of trips.
+    + Via is a growing company and it takes a small proportion of market, but it focuses on the peaking hour
+    and weekday. It make sense because Via offers packages at weekdays for workers and students.
 
 ### 5.4 Weather Effect
 
-We have encouraged to supplement our analysis with combining the extural NYC weather data to study how weather is impacted on the trip duration. Of particular interest here will be the rain, snow fall, and sun statistics.
+We have encouraged to supplement our analysis with combining the external NYC weather data to study how weather impacted on the trip duration. The particular interest here will be the rainny, snowny, sleeting(mixture of snow and rain) and sunny weather. We ploted box plot to observe the distribution of trip durations in these four weather conditions and we generated a bar plot for the number of trip requests for different weather respectively. Note that there are about 25k+ trips with durations larger than 60 miniutes which only made up 0.012% of the whole dataset, so we remove those records for better visualization purpose.
 
 ```{r, fig.width=8, fig.height=4}
 df_rain = fread("./Data/tables/df_rain.csv") %>% as.tibble()
@@ -468,7 +491,7 @@ plot_ly(type = 'bar') %>%
            marker = list(color = 'rgba(254,231,37,0.4)'),
            line = list(color = 'rgba(253,231,37,100)'),
            text = ~paste("weather:","Rainy Days","<br>Trip counts:",82545120)) %>%
-  add_bars(x = ~5111354,   y= "Snowy and Rainy Days",
+  add_bars(x = ~5111354,   y= "sleeting Days",
            name = "Snowy and Rainy Days", fillcolor ='rgba(93,200,99,0.4)',
            marker = list(color = 'rgba(93,200,99,0.4)'),
            line = list(color = 'rgba(93,200,99,100)'),
@@ -488,7 +511,27 @@ plot_ly(type = 'bar') %>%
 
 We find:
 
-* For sunny days, there are the largest amount of trip requests. It tells most people prefer to hand out.
+* For sunny days, there are the largest amount of trip requests. It tells most people prefer to hang out.
 * Rain causes the larger amount order requests and longer trip duration 
 * For snowy days, there are a few outliers, so it might tells more likely occurs extremely cases in the bad weather.
-* It seems more like snow would lead to shorter trips, so it could simply mean passengers were more likely to travel shorter distances, or stay at home.
+* It is more likely that snow would lead to shorter trips, so it could simply mean passengers were more likely to travel shorter distances, or stay at home.
+
+## VI. Conclusion
+
+We conclude:
+
+* FHV data has about 90k missing value. Since we have very large dataset, removing missing value will be better idea.
+* The trip exists a lot of outliers (duration <= 2 mins and >= 4 hours), so we need to investigate on the specific direction and time consumption to identify the possiblity.
+* The duration is heavy skew, so we require **log** transformation to normal distribution for future modeling.
+* In general, trip durations fluctuate all day and long trips happen at rush hour which makes sense. Interesting point is that longer trips happen in Thursday, it may be worth further investigation though. We also found trips with longer duration occurs in May and Oct when a larger number of vistors come to the city.
+* Overall, Via ususally have longer duration because they offer a large number of shared ridd and Uber seems has lowest trip durations. But in weekly base, Lyft generally takes more time for trips except weekend.
+* It is obvious that Uber still dominate the FHV market. Via offer services in limitted areas compared to others. But it is interesting that Lyft shares less market during rush hour and weekdays. We guess that lots of Lyft drivers may be part-time and they may be out of service during weekdays or rush hour.
+* Although distribution of trip durations is quite similar for these four weathers. The interesting point is that median of trip durations in sunny days are slightly larger than others.
+
+Future Thoughts:
+
+* We can expend our data time frame such that collect and combine the latest three years data to study the pattern.
+* It will be a good idea to estimate the distance betweeen each location block, so we can analyze the medican speed, which might be more intuition.
+* The yellow and green cabs also have a big proportion of market share, and directly collected by goverment, so the data is more accurate and reflect to reality.
+* Another concern is that rainy days are much less than sunny days, so we should normalize the trips by weather days, which might be more make sense.
+* I found the paper said: the minimum and maximum temperatures show a strong correlation with each other because it also reflects to the the quality of weather and human behavior. We should include the temeratures to visualize the impact on trip duration.
