@@ -40,7 +40,7 @@ Note: all codes of visualizations have been stored `Visualization.R` except inte
 
 `./Final Project.nb.html`
 
-##### Conclusion
+## Conclusion
 
 * FHV data has about 90k missing value. Since we have very large dataset, removing missing value will be better idea.
 * The trip exists a lot of outliers (duration <= 2 mins and >= 4 hours), so we need to investigate on the specific direction and time consumption to identify the possiblity.
