@@ -306,7 +306,7 @@ We find:
 
 ### 5.2 Durations of FHV Types
 
-We investigate on how the median trip duration depends on the different for hire vehicle types such as Uber, Lyft and Via in hourly, weekly and monthly bases. Note: click `Plan` you will find some interesting trends!
+We investigate on how the median trip duration depends on the different for hire vehicle types such as Uber, Lyft and Via in hourly, weekly and monthly bases. Note: click `Play` you will find some interesting trends!
 
 ```{r, echo=F}
 accumulate_by = function(dat, var)
@@ -372,7 +372,7 @@ We find:
 * For monthly base, Via's median duration is the highest because most trips are share riders, which takes longer time.
 * Overall, Uber has lowest trip duration comparing other two!
 
-### 5.3 Market Share
+### 5.3 Market Share (Interactive component)
 
 We also study the market shares on the both space and time line. We create an interactive [NYC FHV Marketshare map](https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed) to indictate percentage of marketshare for Uber, Lyft and Via at different pick up zone. By simply clicking the map, you can see marketshare data in each zone. The legend lies in the right hand side, where you can also alter different views for each types of taxi by clicking three Teardrop-shaped buttons of applying auto style.
 
