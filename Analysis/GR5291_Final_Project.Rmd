@@ -1,0 +1,180 @@
+---
+title: "GR5291 Project"
+author: "Jie Li, Xiaofan Zhang, Hao Wu"
+date: "5/4/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+library(dplyr)
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(reshape2)
+library(data.table)
+library(tibble)
+library(tidyr)
+library(plotly)
+library(ggpubr)
+library(gridExtra)
+```
+
+
+## 1. Outlier
+
+```{r}
+set.seed(2664)
+
+data = fread("data_weather.csv") %>%
+  mutate(pick = ymd_hms(pick), drop = ymd_hms(drop), duration = as.numeric(drop - pick)) %>%
+  as_tibble() %>% filter(duration < 800) %>% mutate(log_dura = log(.$duration))
+
+origin_data = data
+
+upper = data %>%
+  filter(droplocation == "JFK") %>%
+  select(duration) %>%
+  boxplot() %>%
+  .$stats %>% .[5,]
+
+data = data %>%
+  filter(duration > 15 & duration < upper) %>%
+  mutate(log_dura = log(.$duration))
+
+data = data %>%
+  mutate(index = 1:nrow(data)) %>%
+  group_by(DATE) %>%
+  filter(index %in% sample(index,20))
+```
+
+## 2. Compare two arirports
+
+```{r}
+summary(aov(log_dura ~ droplocation, data))
+```
+
+### 3. split data
+
+```{r}
+JFK = data %>% filter(droplocation == "JFK")
+LAG = data %>% filter(droplocation == "LAG")
+```
+
+### 4. split time window
+
+```{r}
+model_wh_JFK = JFK %>%
+  mutate(time = ifelse(hour(pick) %in% c(0:6, 23), 1, ifelse(hour(pick) %in% c(7:10, 16:19), 2, 3)),
+         weekday = ifelse(weekdays(pick) %in% c("Saturday", "Sunday"), 1,
+                          ifelse(weekdays(pick) %in% c("Monday","Tuesday","Wednesday"), 2,3))) 
+model_wh_JFK$time = factor(model_wh_JFK$time)
+model_wh_JFK$weekday = factor(model_wh_JFK$weekday)
+
+model_wh_LAG = LAG %>%
+  mutate(time = ifelse(hour(pick) %in% c(0:6, 23), 1, ifelse(hour(pick) %in% c(7:10, 16:19), 2, 3)),
+         weekday = ifelse(weekdays(pick) %in% c("Saturday", "Sunday"), 1,
+                          ifelse(weekdays(pick) %in% c("Monday","Tuesday","Wednesday"), 2, 3)))
+model_wh_LAG$time = factor(model_wh_LAG$time)
+model_wh_LAG$weekday = factor(model_wh_LAG$weekday)
+```
+
+### 5. interaction plot
+
+```{r}
+interaction.plot(model_wh_JFK$weekday,model_wh_JFK$time,model_wh_JFK$log_dura,
+                 main = "Interaction Plot for JFK",
+                 xlab = "Weekday", ylab = "log of duration", trace.label = "Time Zone")
+
+interaction.plot(model_wh_LAG$weekday,model_wh_LAG$time,model_wh_LAG$log_dura,
+                 main = "Interaction Plot for LAG",
+                 xlab = "Weekday", ylab = "log of duration", trace.label = "Time Zone")
+```
+
+### 6. type III two way ANOVA
+
+```{r}
+library(car)
+lm_wh_JFK <- lm(log_dura ~ time * weekday, contrasts = list(time=contr.sum, weekday=contr.sum), data = model_wh_JFK)
+Anova(lm_wh_JFK, type=3)
+
+lm_wh_LAG <- lm(log_dura ~ time * weekday, contrasts = list(time=contr.sum, weekday=contr.sum), data = model_wh_LAG)
+Anova(lm_wh_LAG, type=3)
+```
+
+### 7. multiple comparison for interaction
+
+```{r}
+model_wh_JFK$comb = paste(as.character(model_wh_JFK$time),as.character(model_wh_JFK$weekday)) %>% gsub(" ", "", .) %>% factor()
+anova_JFK <- aov(log_dura ~ time + weekday + comb, model_wh_JFK)
+agricolae::HSD.test(anova_JFK, "comb", alpha = 0.05)$group
+
+model_wh_LAG$comb = paste(as.character(model_wh_LAG$time),as.character(model_wh_LAG$weekday)) %>% gsub(" ", "", .) %>% factor()
+anova_LAG <- aov(log_dura ~ time + weekday + comb, model_wh_LAG)
+agricolae::HSD.test(anova_LAG, "comb", alpha = 0.05)$group
+```
+
+### 8. linear regression
+
+```{r}
+comb_data <- rbind(model_wh_JFK,model_wh_LAG)
+comb_data$drop_num <- factor(ifelse(comb_data$droplocation == "JFK", "1", "0"))
+fit <- lm(log_dura ~ drop_num + time * weekday, comb_data)
+summary(fit)
+```
+
+### 9. plot
+
+```{r}
+# histogram
+p1 = origin_data %>% mutate(log.dur = log(duration)) %>%
+  ggplot(.,aes(x = log.dur))+
+  geom_histogram(color="black", fill="steelblue",binwidth = 0.1)+
+  scale_x_continuous(name="Log of duration")+
+  theme_bw(14)
+
+# histogram
+p2 = origin_data %>%
+ggplot(.,aes(x = duration))+
+  geom_histogram(color="black", fill="steelblue",binwidth = 5)+
+  scale_x_continuous(name="Duration")+
+  theme_bw(14)
+
+ggarrange(p2,p1,nrow = 2, ncol = 1)
+
+# boxplot
+origin_data %>%
+  plot_ly(., x = ~duration, type = "box") %>%
+  layout(title = "Boxplot of Durations", xaxis = list(title = "Durations"))
+
+# smooth line
+p3 = data %>% group_by(Rain) %>% summarise(duration.avg = mean(log_dura)) %>%
+ggplot()+
+  geom_smooth(aes(Rain, duration.avg), method = "loess")+
+  xlab("Rain Levels")+
+  ylab("Log of Duration (Min)")+
+  ylim(3,4)+
+  ggtitle("Average Duration VS Rain Effect")+
+  theme_bw(14)
+
+# smooth line
+p4 = data %>%
+  ggplot()+
+  geom_smooth(aes(TMAX, log_dura), method = "loess", col = "red", se = F)+
+  xlab("Temperature")+
+  ylab("Log of Duration (Min)")+
+  ylim(3.25,3.75)+
+  ggtitle("Average Duration VS Temperature Effect")+
+  theme_bw(14)
+
+grid.arrange(p3,p4)
+```
+
+### 10. Prediction based on our model
+
+```{r}
+new = data.frame(drop_num = "1", time = "1", weekday = "1")
+y.pred = exp(predict(fit, newdata = new, type  = "response", interval = "predict"))
+y.pred
+```
+
