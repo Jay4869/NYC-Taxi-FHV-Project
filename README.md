@@ -4,7 +4,7 @@ This repo provides the entire statistical analysis and machine learning pipeline
 
 # Data
 
-The [raw trips data](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page) from the NYC Taxi & Limousine Commission totally contains about 400+ millions of taxi and for-hire vehicle (Uber, Lyft, Via) trips originating in New York City from **2018-01-01** to **2018-12-31**.
+The [FHV trips data](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page) from the NYC Taxi & Limousine Commission totally contains about 400+ millions of taxi and for-hire vehicle (Uber, Lyft, Via) trips originating in New York City from **2018-01-01** to **2018-12-31**. Note: the taxi trips data is also stored in BigQuery, but FHV data is not completed.
 
 The [NYC Taxi Zones map](https://data.cityofnewyork.us/Transportation/NYC-Taxi-Zones/d3c5-ddgc) is provided by TLC and published to NYC Open Data, which stores the information how Taxi zones are defined.
 
@@ -12,8 +12,13 @@ The [NYC Weather data](https://www.ncdc.noaa.gov/data-access) is provided by Nat
 
 Statistics:
   - 112+ million yellow taxi data (18.2 GB) 
-  - 300+ million for-hire vehicle data (16 GB)
+  - 300+ million for-hire vehicle data (17.2 GB)
   - 365 daily weather records
+  
+Existing problem:
+  - R reads entire data set into RAM all at once. Total 17.2 GB of raw data would not fit in local memory at once.
+  - R Objects live in memory entirely, which cause slowness for data analysis.
+  - The TLC publishes base trip record data as submitted by the bases, and we cannot guarantee or confirm their accuracy or completeness.
 
 ## Instructions
 
@@ -39,13 +44,26 @@ Aggregate different time lines to understand the travel time pattern, which stor
 
 `./Analysis/Visualization.R`
 
-It will generate the entire exploratory data analysis and report `./ReportS/NYC Taxi & FHV Project - Exploratory.html`
+Generate the entire exploratory data analysis to understand the insight behind data.
+
+`./ReportS/NYC Taxi & FHV Project - Exploratory.html`
+
 The interactive map is made by CARTO, which show the taxi zones and market shares
 https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed (expired)
 
 ##### 5. Statistical Inference
 
+`./Analysis/GR5291_Final_Project.Rmd`
+
+Provide the statistical analysis and hypothesis testing on customer behavior, traffic and weather effect. 
+
+`./ReportS/NYC Taxi & FHV Project - Inference .pdf`
+
 ##### 6. Machine Learning
+
+Construct a machine learning pipeline in Python to combine multiple datasets, develop feature engineering, build regularized linear model and tree base models (RF, GBDT, XGBoost).
+
+`./ReportS/NYC Taxi & FHV Project - Machine Learning.ipynb`
 
 ## Conclusion
 
