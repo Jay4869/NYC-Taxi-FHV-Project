@@ -15,12 +15,6 @@ Statistics:
   - 300+ million for-hire vehicle data (16 GB)
   - 365 daily weather records
 
-# Challenge
-
-The challenge is to process large datasets, remove outliers, 
-
-and to understand the duration of FHV in NYC based on features: trip location, pick-up, drop-off time, and weather effect. Also, we are interested in the difference betweeen three companies such as market shares, targeted customers, and business strategy. First of all, we analysis and visualize the original data, engineer new features, aggregate time-series variables to understand the data and pattern. Second, we compare three companies (Uber, Lyft, Via) over various time frame on trip amount and duration to analyze the market share and business strategy. Lastly, we add external NYC weather data to study how the weather impact on the trip duration and order requests in order to understand users behavior.
-
 ## Instructions
 
 ##### 1. Download FHV data
