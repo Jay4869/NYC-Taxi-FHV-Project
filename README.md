@@ -15,39 +15,37 @@ Statistics:
   - 300+ million for-hire vehicle data (16 GB)
   - 365 daily weather records
 
-# Challenge
-
-The challenge is to process large data sets and to understand the duration of FHV in NYC based on features: trip location, pick-up, drop-off time, and weather effect. Also, we are interested in the difference betweeen three companies such as market shares, targeted customers, and business strategy. First of all, we analysis and visualize the original data, engineer new features, aggregate time-series variables to understand the data and pattern. Second, we compare three companies (Uber, Lyft, Via) over various time frame on trip amount and duration to analyze the market share and business strategy. Lastly, we add external NYC weather data to study how the weather impact on the trip duration and order requests in order to understand users behavior.
-
 ## Instructions
 
-##### 1. Download raw FHV data
+##### 1. Download FHV data
 
 `./Import/download data.sh`
 
-Note: each raw data is about 1.3 GB, so it will take a while to download.
+Using shell script to download FHV data from TLC website. Each month FHV trip data is about 1.3 GB, so it will take about 50-60 minutes to download.
 
 ##### 2. Import & Processing
 
 `./Import/data processing.R`
 
-Note: ETL for half-year raw data takes about 20 minutes to do so.
+Using R `data.table` to do ETL process takes about 20 minutes to do so.
 
 ##### 3. Create aggregation tables
 
 `./Aggregation/aggregation.R`
 
-Note: all tables for EDA have been stored in `./Data/tables` folder. 
+Aggregate different time lines to understand the travel time pattern, which store in `./Data/tables` folder. 
 
 ##### 4. Visualization
 
 `./Analysis/Visualization.R`
 
-Note: all codes of visualizations have been stored `Visualization.R` except interactive map. The interactive map can be found at https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed.
+It will generate the entire exploratory data analysis and report `./ReportS/NYC Taxi & FHV Project - Exploratory.html`
+The interactive map is made by CARTO, which show the taxi zones and market shares
+https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed (expired)
 
-##### 5. Final Report
+##### 5. Statistical Inference
 
-`./Final Project.nb.html`
+##### 6. Machine Learning
 
 ## Conclusion
 
