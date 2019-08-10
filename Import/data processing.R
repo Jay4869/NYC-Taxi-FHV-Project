@@ -49,14 +49,14 @@ import_data = function(start, end)
       .[, date := date(pickup_datetime)] %>%
       .[, month := month(pickup_datetime)] %>%
       .[, day := day(pickup_datetime)] %>%
+      .[, wkday := weekdays(date)] %>%
       .[, pick_hour := hour(pickup_datetime)] %>%
       .[, pickup_location_id := PUlocationID] %>%
       .[, dropoff_location_id := DOlocationID] %>%
-      .[, list(travel_time, pickup_datetime, dropoff_datetime, date, month, day,
+      .[, list(travel_time, pickup_datetime, dropoff_datetime, date, month, day, wkday,
                pick_hour, pickup_location_id, dropoff_location_id, type)]
     
-    temp = temp[, r := row_number(pickup_datetime), by = .(day, pick_hour)][r <= 20]
-
+    temp = temp[, r := row_number(pickup_datetime), by = .(month, day, pick_hour)][r %in% sample(seq(1, 9999), 20)]
     data = rbindlist(list(data, temp), use.names = FALSE)
   }
   
@@ -71,6 +71,6 @@ import_data = function(start, end)
 # import_data(1,6) %>% as_tibble() %>%
 #   group_by(day, pick_hour) %>%
 #   filter(row_number(pickup_datetime) <= 300)%>%
-#   fwrite("./Data/sampled_1-6.csv")
+#   fwrite("./Data/sampled_1-2.csv")
 
 data = import_data(1,12)
