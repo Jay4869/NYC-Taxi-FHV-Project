@@ -1,6 +1,6 @@
 # NYC Taxi & FHV Project
 
-This repo provides the entire statistical analysis and machine learning pipeline, including data processing, comprehensive exploratory analysis, hypothesis testing to study the consumer behavior, traffic issue, weather effect, and predict the travel time of taxi and for-hire vehicle (Uber, Lyft, Via) trips between two points in New York City.
+This repo provides the entire statistical analysis and machine learning pipeline, including data processing, comprehensive exploratory analysis, hypothesis testing to study the consumer behavior, traffic, weather effect, and predict the travel time of taxi and for-hire vehicle (Uber, Lyft, Via) trips between two points in New York City.
 
 # Data
 
@@ -8,15 +8,15 @@ The [FHV trips data](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.pa
 
 The [NYC Taxi Zones map](https://data.cityofnewyork.us/Transportation/NYC-Taxi-Zones/d3c5-ddgc) is provided by TLC and published to NYC Open Data, which stores the information how Taxi zones are defined.
 
-The [NYC Weather data](https://www.ncdc.noaa.gov/data-access) is provided by National Centers For Environmental Information, which contains hourly weather records such as temperature, precipitation, visibility, and wind.
+The [NYC Weather data](https://www.ncdc.noaa.gov/data-access) is provided by National Centers For Environmental Information, which contains hourly weather records such as temperature, precipitation, visibility, wind and snow depth.
 
 Statistics:
-  - 112+ million yellow taxi data (18.2 GB) 
-  - 300+ million for-hire vehicle data (17.2 GB)
+  - 112+ million yellow taxi data (18 GB) 
+  - 300+ million for-hire vehicle data (16 GB)
   - 365 daily weather records
   
 Existing problem:
-  - R reads entire data set into RAM all at once. Total 17.2 GB of raw data would not fit in local memory at once.
+  - R reads entire data set into RAM all at once. Total 34 GB of raw data would not fit in local memory at once.
   - R Objects live in memory entirely, which cause slowness for data analysis.
   - The TLC publishes base trip record data as submitted by the bases, and we cannot guarantee or confirm their accuracy or completeness.
 
@@ -26,38 +26,29 @@ Existing problem:
 
 `./Import/download data.sh`
 
-Using shell script to download FHV data from TLC website. Each month FHV trip data is about 1.3 GB, so it will take about 50-60 minutes to download.
+Using shell script to download FHV data from TLC website. Each month FHV trip data is about 1.3 GB, so it will take about 50-60 minutes to download the 12-month dataset.
 
 ##### 2. Import & Processing
 
 `./Import/data processing.R`
 
-Using R `data.table` to do ETL process takes about 20 minutes to do so.
+Using high-performance version of base R's data.frame `data.table` and randomly sampling 5% of total data.
 
-##### 3. Create aggregation tables
+##### 3. Visualization
 
-`./Aggregation/aggregation.R`
+`./Analysis/NYC Taxi & FHV Project - Exploratory.Rmd`
 
-Aggregate different time lines to understand the travel time pattern, which store in `./Data/tables` folder. 
+Generate the entire [exploratory data analysis](https://jtr13.github.io/spring19/NYC_Taxi_Project.html) to understand the consumer behavior and market insights.
 
-##### 4. Visualization
-
-`./Analysis/Visualization.R`
-
-Generate the entire exploratory data analysis to understand the insight behind data.
-
-`./ReportS/NYC Taxi & FHV Project - Exploratory.html`
-
-The interactive map is made by CARTO, which show the taxi zones and market shares
-https://zxf71699.carto.com/builder/62d8c815-2839-41fe-95e0-84ac6e4eccb6/embed (expired)
+Also, the pdf version report is provided `./ReportS/NYC Taxi & FHV Project - Exploratory.pdf`
 
 ##### 5. Statistical Inference
 
-`./Analysis/GR5291_Final_Project.Rmd`
+`./Analysis/NYC Taxi & FHV Project - Inference.Rmd`
 
-Provide the statistical analysis and hypothesis testing on customer behavior, traffic and weather effect. 
+Provide the statistical analysis and hypothesis testing (ANOVA, Block tests) on customer behavior, traffic and weather effect. 
 
-`./ReportS/NYC Taxi & FHV Project - Inference .pdf`
+`./ReportS/NYC Taxi & FHV Project - Inference.pdf`
 
 ##### 6. Machine Learning
 
@@ -67,10 +58,10 @@ Construct a machine learning pipeline in Python to combine multiple datasets, de
 
 ## Conclusion
 
-* FHV data has about 90k missing value. Since we have very large dataset, removing missing value will be better idea.
-* The trip exists a lot of outliers (duration <= 2 mins and >= 4 hours), so we need to investigate on the specific direction and time consumption to identify the possiblity.
-* The duration is heavy skew, so we require **log** transformation to normal distribution for future modeling.
-* In general, trip durations fluctuate all day and long trips happen at rush hour which makes sense. Interesting point is that longer trips happen in Thursday, it may be worth further investigation though. We also found trips with longer duration occurs in May and Oct when a larger number of vistors come to the city.
-* Overall, Via ususally have longer duration because they offer a large number of shared ride and Uber seems has lowest trip durations. But in weekly base, Lyft generally takes more time for trips except weekend.
+* The trip exists a lot of outliers (duration <= 2 mins and >= 5 hours), so we need to investigate on the specific direction and time consumption to identify the possiblity.
+* The travel time is heavy positive skew, so **Log** transformation to normal distribution might help for future modeling.
+* In general, travel time is highly depended on the travel distance, direction and rush hour. We also found trips with longer duration occurs in May and Oct when a larger number of vistors come to the city.
+* Via has significantly longer travel time than other FHV companies because Via only offer poolling strategy in order to increase ETA for each trip. However, Uber usually has lowest travel time might because of different route planning. 
 * It is obvious that Uber still dominate the FHV market. Via offer services in limitted areas compared to others. But it is interesting that Lyft shares less market during rush hour and weekdays. We guess that lots of Lyft drivers may be part-time and they may be out of service during weekdays or rush hour.
-* Although distribution of trip durations is quite similar for these four weathers. The interesting point is that median of trip durations in sunny days are slightly larger than others.
+* Even the distribution of travel time is quite similar for these four weathers, it still shows the seaonality due to the season changes.
+* The hypothesis analysis shows that the rush hour(7-10 AM, 4-7 AM) during weekdays is the major effect on travel time, taking 36 minutes to LGA, 56 minutes to JFK, which are 34% longer than traveling during the weekends.
