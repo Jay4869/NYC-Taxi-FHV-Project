@@ -1,6 +1,7 @@
 # NYC Taxi & FHV Project
+###### Author: Jay Li, Frances Zhang
 
-This repo provides the entire statistical analysis and machine learning pipeline, including data processing, comprehensive exploratory analysis, hypothesis testing to study the consumer behavior, traffic, weather effect, and predict the travel time of taxi and for-hire vehicle (Uber, Lyft, Via) trips between two points in New York City.
+This repo provides the end-to-end statistical analysis and machine learning pipeline, including data processing, comprehensive exploratory analysis, hypothesis testing to study the consumer behavior, traffic, weather effect, and provide the most efficient commute plan in New York City by predicting the travel time of taxi and for-hire vehicle (Uber, Lyft, Via), given pick-up, drop-off location and time.
 
 # Data
 
